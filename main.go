@@ -1,45 +1,31 @@
 package main
 
 import (
-	"context"
+	"KpChatGpt/handle"
+	"KpChatGpt/services"
 	"fmt"
-	"github.com/PullRequestInc/go-gpt3"
-	"log"
-)
-
-const (
-	maxTokens   = 3000
-	temperature = 0.7
-	engine      = gpt3.TextDavinci003Engine
-	question    = "你好你是谁？"
-	apiKey      = "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"
+	"github.com/gin-gonic/gin"
 )
 
 func main() {
-	fmt.Print("User: ")
-	fmt.Println(question)
-	client := gpt3.NewClient(apiKey)
-	fmt.Print("Bot: ")
-	reply := ""
-	i := 0
-	ctx := context.Background()
-	//resp, err := client.Completion(ctx, gpt3.CompletionRequest{
-	//	Prompt: []string{"2, 3, 5, 7, 11,"},
-	//})
-	if err := client.CompletionStreamWithEngine(ctx, engine, gpt3.CompletionRequest{
-		Prompt: []string{
-			question,
-		},
-		MaxTokens:   gpt3.IntPtr(maxTokens),
-		Temperature: gpt3.Float32Ptr(temperature),
-	}, func(resp *gpt3.CompletionResponse) {
-		if i > 1 {
-			fmt.Print(resp.Choices[0].Text)
-			reply += resp.Choices[0].Text
-		}
-		i++
-	}); err != nil {
-		log.Fatalln(err)
+	//configs.ParseConfig("") //配置读取
+	services.InitClient("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")
+
+	go handle.Manager.Start()
+	r := gin.Default()
+	route(r)
+	//r.Run(":" + configs.Config().Port)
+	address := fmt.Sprintf("%s:%d", "0.0.0.0", 8888) //拼接监听地址
+	r.Run(address)
+}
+
+func route(r *gin.Engine) {
+	r.Use(handle.Cors())
+	group := r.Group("/api/v1")
+	{
+		group.GET("/ping", func(c *gin.Context) {
+			c.JSON(200, "success")
+		})
+		group.GET("/gep3", handle.Gpt3)
 	}
-	fmt.Print(reply)
 }

@@ -1,0 +1,23 @@
+app_mode : development
+
+server:
+  protocol: http
+  http_port: 9999
+
+mysql:
+  mysql_host: rm-bp1daog8mpm7h1ewu.mysql.rds.aliyuncs.com
+  mysql_port: 3306
+  mysql_dbname: mirror_china
+  mysql_user: mirror
+  mysql_passwd: blx@2022
+  mysql_charset: utf8mb4
+
+client:
+  client_path: https://nftstorage.link/ipfs
+
+message:
+  message_address: https://dx.ipyy.net
+  message_path : smsjson.aspx
+  verified_address: https://naidcard.market.alicloudapi.com
+  verified_path: nidCard
+  app_code: fe2b8d3359684d9da5dabf53b0c04b79
