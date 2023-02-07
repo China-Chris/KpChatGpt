@@ -26,6 +26,6 @@ func route(r *gin.Engine) {
 		group.GET("/ping", func(c *gin.Context) {
 			c.JSON(200, "success")
 		})
-		group.GET("/gep3", handle.Gpt3)
+		group.GET("/gepQa", handle.Gpt)
 	}
 }

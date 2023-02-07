@@ -25,6 +25,7 @@ type ReplyMsg struct {
 type Client struct {
 	ID     string
 	sendID string
+	Model  string
 	Socket *websocket.Conn
 	Send   chan []byte
 }
@@ -55,44 +56,6 @@ var Manager = ClientManager{
 	Register:   make(chan *Client),
 	Reply:      make(chan *Client),
 	Unregister: make(chan *Client),
-}
-
-func CreateID(uid, toUid string) string {
-	return uid + "->" + toUid // 1->2 ()
-}
-
-func Gpt3(c *gin.Context) {
-	uid := c.Query("uid")
-	conn, err := (&websocket.Upgrader{
-		CheckOrigin: func(r *http.Request) bool {
-			return true
-		}}).Upgrade(c.Writer, c.Request, nil) //升级 ws协议
-	if err != nil {
-		http.NotFound(c.Writer, c.Request)
-		return
-	}
-	//创建一个用户实例
-	client := &Client{
-		ID:     CreateID(uid, "chat"),
-		sendID: CreateID("chat", uid),
-		Socket: conn,
-		Send:   make(chan []byte),
-	}
-	//创建一个用户实例
-	chatClient := &Client{
-		ID:     CreateID("chat", uid),
-		sendID: CreateID(uid, "chat"),
-		Socket: conn,
-		Send:   make(chan []byte),
-	}
-	Manager.Register <- chatClient
-	//注册到用户管理
-	Manager.Register <- client
-	go client.Read()
-	go client.Write()
-	go chatClient.ChatWrite()
-	go chatClient.Chat()
-
 }
 
 func (c *Client) Read() {
@@ -171,7 +134,7 @@ func (c *Client) ChatWrite() {
 				_ = c.Socket.WriteMessage(websocket.CloseMessage, []byte{})
 				return
 			}
-			services.GetAnswer(string(message), ch1)
+			services.GetAnswer(string(message), c.Model, ch1)
 			//for v := range ch1 {
 			//	replyMsg := ReplyMsg{
 			//		Code:    200,
@@ -201,7 +164,7 @@ func (c *Client) Chat() {
 			break
 		}
 		if sendMsg.Type == 2 { //如果tape=1 则为发送消息
-			services.GetAnswer(sendMsg.Content, ch)
+			services.GetAnswer(sendMsg.Content, c.Model, ch)
 			for v := range ch {
 				replyMsg := ReplyMsg{
 					Code:    200,
@@ -209,8 +172,47 @@ func (c *Client) Chat() {
 				}
 				msg, _ := json.Marshal(replyMsg)
 				_ = c.Socket.WriteMessage(websocket.TextMessage, msg)
-
 			}
 		}
 	}
+}
+
+func CreateID(uid, toUid string) string {
+	return uid + "->" + toUid // 1->2 ()
+}
+
+func Gpt(c *gin.Context) {
+	uid := c.Query("uid")
+	model := c.Query("model")
+	conn, err := (&websocket.Upgrader{
+		CheckOrigin: func(r *http.Request) bool {
+			return true
+		}}).Upgrade(c.Writer, c.Request, nil) //升级 ws协议
+	if err != nil {
+		http.NotFound(c.Writer, c.Request)
+		return
+	}
+	//创建一个用户实例
+	client := &Client{
+		ID:     CreateID(uid, "chat"),
+		sendID: CreateID("chat", uid),
+		Socket: conn,
+		Model:  model,
+		Send:   make(chan []byte),
+	}
+	//创建一个用户实例
+	chatClient := &Client{
+		ID:     CreateID("chat", uid),
+		sendID: CreateID(uid, "chat"),
+		Socket: conn,
+		Model:  model,
+		Send:   make(chan []byte),
+	}
+	Manager.Register <- chatClient
+	//注册到用户管理
+	Manager.Register <- client
+	go client.Read()
+	go client.Write()
+	go chatClient.ChatWrite()
+	go chatClient.Chat()
 }
