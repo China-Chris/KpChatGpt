@@ -1,4 +1,4 @@
-package handle
+package gpt3
 
 import (
 	"KpChatGpt/services"
