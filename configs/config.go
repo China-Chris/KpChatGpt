@@ -1,6 +1,7 @@
 package configs
 
 import (
+	"context"
 	"github.com/spf13/viper"
 	"sync"
 )
@@ -23,6 +24,7 @@ type MysqlConfig struct {
 type GlobalConfig struct {
 	Port  string
 	Mysql MysqlConfig
+	Redis Redis
 	Debug bool
 	Proxy string
 	Eth   []string
@@ -38,6 +40,8 @@ func Config() GlobalConfig {
 	return configCopy
 }
 
+var Ctx = context.Background()
+
 //加载配置文件
 func ParseConfig(cfg string) {
 	viper.SetConfigFile(cfg)
@@ -50,4 +54,11 @@ func ParseConfig(cfg string) {
 	if err != nil {
 		panic(err)
 	}
+}
+
+type Redis struct {
+	Host   string // 数据库连接地址
+	Port   int64  // 数据库连接端口
+	DbName int    // 数据库名称
+	Passwd string // 数据库密码
 }
