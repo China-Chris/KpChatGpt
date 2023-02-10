@@ -42,7 +42,7 @@ func Config() GlobalConfig {
 
 var Ctx = context.Background()
 
-//加载配置文件
+//ParseConfig 加载配置文件
 func ParseConfig(cfg string) {
 	viper.SetConfigFile(cfg)
 	err := viper.ReadInConfig()

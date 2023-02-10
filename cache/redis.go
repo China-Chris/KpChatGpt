@@ -7,7 +7,7 @@ import (
 	"github.com/go-redis/redis/v8"
 )
 
-var Rdb *redis.Client
+var Rdb *redis.Client //配置全局redis客户端
 
 // NewRedis 初始化Redis数据库
 func NewRedis() {

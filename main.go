@@ -1,7 +1,8 @@
 package main
 
 import (
-	configs "KpChatGpt/configs"
+	"KpChatGpt/cache"
+	"KpChatGpt/configs"
 	"KpChatGpt/controller/gpt3"
 	logger "KpChatGpt/logs"
 	"KpChatGpt/routers"
@@ -14,7 +15,7 @@ func init() {
 	configs.ParseConfig("./configs/cfg.yml")                                   //配置读取
 	services.InitClient("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") //默认单key
 	//daos.InitMysql()                         //初始化数据库
-	//cache.NewRedis()                         //初始化缓存
+	cache.NewRedis() //初始化缓存
 	logger.InitLog() //日志
 }
 
