@@ -5,6 +5,7 @@ import (
 	"time"
 )
 
+// User 用户表
 type User struct {
 	gorm.Model
 	Phone    string    `gorm:"type:varchar(20);not null"`  //手机号
@@ -21,10 +22,7 @@ type User struct {
 	Role     int       `gorm:"not null"`                   //角色
 }
 
-func (t User) TableName() string {
-	return "user"
-}
-
+// LoginRecord 登录记录
 type LoginRecord struct {
 	gorm.Model
 	UserId    uint      `gorm:"not null"` //用户表ID
@@ -34,14 +32,21 @@ type LoginRecord struct {
 	Location  string    //位置
 }
 
-func (t LoginRecord) TableName() string {
-	return "login_record"
-}
-
-//统计用户活动
+// UserActivity 统计用户活动
 type UserActivity struct {
 	Date          time.Time //日期
 	DailyActive   int       //日活
 	MonthlyActive int       //月活
 	RetentionRate float64   //留存率
+}
+
+func (t User) TableName() string {
+	return "user"
+}
+func (t LoginRecord) TableName() string {
+	return "login_record"
+}
+
+func (t UserActivity) TableName() string {
+	return "user_activity"
 }

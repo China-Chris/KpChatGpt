@@ -18,7 +18,7 @@ func SignUp(ctx *gin.Context) {
 	var signUp request.RqSignUp
 	err := ctx.ShouldBindJSON(&signUp)
 	if err != nil {
-		response.JsonFailMessage(ctx, errors_const.ErrInternalServer, err)
+		response.JsonFailMessage(ctx, errors_const.ErrInternalServer, err) //json解析失败
 		return
 	}
 	checkMobile := user.CheckMobile(signUp.Phone)
