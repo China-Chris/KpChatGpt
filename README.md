@@ -21,8 +21,3 @@
 ├── readme.md
 └── services
 ```
-
-
-│   ├── key.go
-│   ├── root.go
-│   └── run.go
