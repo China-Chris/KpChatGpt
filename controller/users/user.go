@@ -4,6 +4,7 @@ import (
 	"KpChatGpt/e/errors_const"
 	"KpChatGpt/handle/request"
 	"KpChatGpt/handle/response"
+	"KpChatGpt/services"
 	"KpChatGpt/services/user"
 	"github.com/gin-gonic/gin"
 )
@@ -11,7 +12,7 @@ import (
 // Login 用户登陆
 func Login(ctx *gin.Context) {
 
-	var loginReq request.ReLogin
+	var loginReq request.RqLogin
 	err := ctx.ShouldBindJSON(&loginReq)
 	if err != nil {
 		response.JsonFailMessage(ctx, errors_const.ErrInternalServer, err) //json解析失败
@@ -72,4 +73,20 @@ func SignUp(ctx *gin.Context) {
 		return
 	}
 	response.JsonSuccess(ctx, date)
+}
+
+// Sms 获取sms短信
+func Sms(ctx *gin.Context) {
+	var signUp request.RqSms
+	err := ctx.ShouldBindJSON(&signUp)
+	if err != nil {
+		response.JsonFailMessage(ctx, errors_const.ErrInternalServer, err) //json解析失败
+		return
+	}
+	checkMobile := services.GetSms(signUp.Phone) //获取SMS短信
+	if !checkMobile {
+		response.JsonFailMessage(ctx, errors_const.ErrCheckMobile, err)
+		return
+	}
+	response.JsonSuccess(ctx, nil)
 }

@@ -29,8 +29,8 @@ func Route(r *gin.Engine) {
 	user := group.Group("/user")
 	{
 		user.POST("/login", activeCount.DailyActiveCount, users.Login)   //用户登陆
-		user.POST("/signUp", users.SignUp)                               //获取图形验证码
-		user.POST("/sms", users.SignUp)                                  //获取sms短信
+		user.POST("/captcha", users.SignUp)                              //获取图形验证码
+		user.POST("/sms", users.Sms)                                     //获取sms短信
 		user.POST("/signUp", activeCount.DailyActiveCount, users.SignUp) //用户注册   等过两天删除该接口
 		//user.POST("/signUp",jwt.AuthMiddleware, activeCount.DailyActiveCount, users.SignUp)                  //编辑用户
 		//user.DELETE("/signUp", activeCount.DailyActiveCount, users.SignUp)                //用户注销
