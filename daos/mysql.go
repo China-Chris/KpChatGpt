@@ -2,7 +2,9 @@ package daos
 
 import (
 	"KpChatGpt/configs"
+	"KpChatGpt/model"
 	"fmt"
+	"github.com/beego/beego/v2/adapter/logs"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
@@ -22,5 +24,14 @@ func InitMysql() {
 	db, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {
 		panic("failed to connect database")
+	}
+	CreateMysql() //初始化建表
+}
+func CreateMysql() {
+	if err := db.AutoMigrate(
+		model.Version{}, model.User{},
+		model.LoginRecord{}, model.UserActivity{},
+	); err != nil {
+		logs.Info(fmt.Printf("automigrate table error: %v \n", err))
 	}
 }

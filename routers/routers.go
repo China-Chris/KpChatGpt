@@ -7,7 +7,6 @@ import (
 	"KpChatGpt/handle"
 	"KpChatGpt/middleware/activeCount"
 	"KpChatGpt/middleware/bucket"
-	"KpChatGpt/middleware/jwt"
 	"github.com/gin-gonic/gin"
 )
 
@@ -22,7 +21,6 @@ func Route(r *gin.Engine) {
 		group.GET("/ping", func(c *gin.Context) {
 			c.JSON(200, "success") //测试连通
 		})
-		group.GET("/gep3", gpt3.Gpt) //got3
 	}
 	gpt := group.Group("/gpt")
 	{
@@ -30,9 +28,11 @@ func Route(r *gin.Engine) {
 	}
 	user := group.Group("/user")
 	{
-		user.GET("/login", jwt.AuthMiddleware, activeCount.DailyActiveCount, users.Login) //用户登陆
-		user.POST("/signUp", activeCount.DailyActiveCount, users.SignUp)                  //用户注册
-		//user.POST("/signUp", activeCount.DailyActiveCount, users.SignUp)                  //编辑用户
+		user.POST("/login", activeCount.DailyActiveCount, users.Login)   //用户登陆
+		user.POST("/signUp", users.SignUp)                               //获取图形验证码
+		user.POST("/sms", users.SignUp)                                  //获取sms短信
+		user.POST("/signUp", activeCount.DailyActiveCount, users.SignUp) //用户注册   等过两天删除该接口
+		//user.POST("/signUp",jwt.AuthMiddleware, activeCount.DailyActiveCount, users.SignUp)                  //编辑用户
 		//user.DELETE("/signUp", activeCount.DailyActiveCount, users.SignUp)                //用户注销
 		//user.GET("/login", jwt.AuthMiddleware, users.Login)                               //用户邀请
 	}
