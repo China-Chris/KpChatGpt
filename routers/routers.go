@@ -14,10 +14,9 @@ import (
 const rate = 5 //令牌桶限制-每个ip每秒访问次数
 
 func Route(r *gin.Engine) {
-	r.Use(handle.AppRecover)
-	r.Use(handle.Cors())
+	r.Use(handle.AppRecover) //全局异常捕获
+	r.Use(handle.Cors())     //全局跨域支持
 	group := r.Group("/api/v1")
-	group.Use(jwt.AuthMiddleware)
 	group.Use(bucket.IpTokenBucketMiddleware(rate))
 	{
 		group.GET("/ping", func(c *gin.Context) {
@@ -25,20 +24,24 @@ func Route(r *gin.Engine) {
 		})
 		group.GET("/gep3", gpt3.Gpt) //got3
 	}
-	user := r.Group("/api/v1/user")
+	gpt := group.Group("/gpt")
+	{
+		gpt.GET("/gep3", gpt3.Gpt) //got3
+	}
+	user := group.Group("/user")
 	{
 		user.GET("/login", jwt.AuthMiddleware, activeCount.DailyActiveCount, users.Login) //用户登陆
 		user.POST("/signUp", activeCount.DailyActiveCount, users.SignUp)                  //用户注册
-		user.POST("/signUp", activeCount.DailyActiveCount, users.SignUp)                  //编辑用户
-		user.DELETE("/signUp", activeCount.DailyActiveCount, users.SignUp)                //用户注销
-		user.GET("/login", jwt.AuthMiddleware, users.Login)                               //用户邀请
+		//user.POST("/signUp", activeCount.DailyActiveCount, users.SignUp)                  //编辑用户
+		//user.DELETE("/signUp", activeCount.DailyActiveCount, users.SignUp)                //用户注销
+		//user.GET("/login", jwt.AuthMiddleware, users.Login)                               //用户邀请
 	}
-	version := r.Group("/api/v1/version")
+	version := group.Group("/version")
 	{
 		version.GET("/getVersion", versions.GetVersion) //获得版本
-		version.GET("/getVersion", versions.GetVersion) //新增版本
-		version.GET("/getVersion", versions.GetVersion) //更新版本
-		version.GET("/getVersion", versions.GetVersion) //删除版本
+		//version.GET("/getVersion", versions.GetVersion) //新增版本
+		//version.GET("/getVersion", versions.GetVersion) //更新版本
+		//version.GET("/getVersion", versions.GetVersion) //删除版本
 	}
 
 }

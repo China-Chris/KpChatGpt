@@ -27,9 +27,6 @@ type GlobalConfig struct {
 	Redis Redis
 	Debug bool
 	Proxy string
-	Eth   []string
-	Bsc   []string
-	Fibo  []string
 }
 
 // Config 返回配置文件
@@ -49,7 +46,6 @@ func ParseConfig(cfg string) {
 	if err != nil {
 		panic(err)
 	}
-
 	err = viper.Unmarshal(&config)
 	if err != nil {
 		panic(err)
