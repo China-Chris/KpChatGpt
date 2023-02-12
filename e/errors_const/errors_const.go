@@ -11,4 +11,7 @@ const ( //  用户模块
 	ErrSignUp
 	ErrCheckMobile
 	ErrGenerateToken
+	ErrGenerateSafeString
+	ErrSendSMS
+	ErrSaveSmsToRedis
 )

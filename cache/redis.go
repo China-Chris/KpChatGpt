@@ -12,6 +12,7 @@ var Rdb *redis.Client //配置全局redis客户端
 // NewRedis 初始化Redis数据库
 func NewRedis() {
 	cfg := configs.Config().Redis
+	logs.Info("host:%s,port:%v,p:%s", cfg.Host, cfg.Port, cfg.Passwd)
 	Ctx := configs.Ctx
 	nds := fmt.Sprintf("%s:%d", cfg.Host, cfg.Port)
 	client := redis.Options{

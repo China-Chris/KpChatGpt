@@ -22,11 +22,12 @@ type MysqlConfig struct {
 
 // GlobalConfig 全局配置
 type GlobalConfig struct {
-	Port  string
-	Mysql MysqlConfig
-	Redis Redis
-	Debug bool
-	Proxy string
+	Port    string
+	Mysql   MysqlConfig
+	Redis   Redis
+	Message Message
+	Debug   bool
+	Proxy   string
 }
 
 // Config 返回配置文件
@@ -35,6 +36,18 @@ func Config() GlobalConfig {
 	configCopy := config
 	rConfig.RUnlock()
 	return configCopy
+}
+
+type Redis struct {
+	Host   string // 数据库连接地址
+	Port   int64  // 数据库连接端口
+	DbName int    // 数据库名称
+	Passwd string // 数据库密码
+}
+
+type Message struct {
+	Message     string // 短信发送地址
+	MessagePath string // 短信path
 }
 
 var Ctx = context.Background()
@@ -50,11 +63,4 @@ func ParseConfig(cfg string) {
 	if err != nil {
 		panic(err)
 	}
-}
-
-type Redis struct {
-	Host   string // 数据库连接地址
-	Port   int64  // 数据库连接端口
-	DbName int    // 数据库名称
-	Passwd string // 数据库密码
 }

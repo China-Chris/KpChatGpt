@@ -9,8 +9,9 @@ require (
 	github.com/go-redis/redis/v8 v8.11.5
 	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/gorilla/websocket v1.5.0
-	github.com/jinzhu/gorm v1.9.16
+	github.com/recallsong/httpc v0.0.0-20200303195755-6aaab369799d
 	github.com/spf13/viper v1.15.0
+	github.com/zhengjianfeng1103/vUtils v1.0.1
 	gorm.io/driver/mysql v1.4.6
 	gorm.io/gorm v1.24.5
 )
