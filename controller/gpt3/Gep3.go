@@ -68,7 +68,7 @@ func (c *Client) Read() {
 		sendMsg := new(SendMsg)
 		err := c.Socket.ReadJSON(&sendMsg)
 		if err != nil {
-			fmt.Println("数据格式不正确", err)
+			fmt.Println("read数据格式不正确", err)
 			Manager.Unregister <- c
 			_ = c.Socket.Close()
 			break
@@ -89,28 +89,28 @@ func (c *Client) Read() {
 	}
 }
 
-func (c *Client) Write() {
-	defer func() {
-		_ = c.Socket.Close()
-	}()
-	for {
-		select {
-		case message, ok := <-c.Send:
-			if !ok {
-				_ = c.Socket.WriteMessage(websocket.CloseMessage, []byte{})
-				return
-			}
-			replyMsg := ReplyMsg{
-				Code:    200,
-				Content: fmt.Sprintf("%s", string(message)),
-			}
-			msg, _ := json.Marshal(replyMsg)
-
-			_ = c.Socket.WriteMessage(websocket.TextMessage, msg)
-
-		}
-	}
-}
+//func (c *Client) Write() {
+//	defer func() {
+//		_ = c.Socket.Close()
+//	}()
+//	for {
+//		select {
+//		case message, ok := <-c.Send:
+//			if !ok {
+//				_ = c.Socket.WriteMessage(websocket.CloseMessage, []byte{})
+//				return
+//			}
+//			replyMsg := ReplyMsg{
+//				Code:    200,
+//				Content: fmt.Sprintf("数据格式不正确Write%s", string(message)),
+//			}
+//			msg, _ := json.Marshal(replyMsg)
+//
+//			_ = c.Socket.WriteMessage(websocket.TextMessage, msg)
+//
+//		}
+//	}
+//}
 
 func (c *Client) ChatWrite() {
 	ch1 := make(chan string, 100)
@@ -158,7 +158,7 @@ func (c *Client) Chat() {
 		sendMsg := new(SendMsg)
 		err := c.Socket.ReadJSON(&sendMsg)
 		if err != nil {
-			fmt.Println("数据格式不正确", err)
+			fmt.Println("chat数据格式不正确Write1", err)
 			Manager.Unregister <- c
 			_ = c.Socket.Close()
 			break
@@ -212,7 +212,7 @@ func Gpt(c *gin.Context) {
 	//注册到用户管理
 	Manager.Register <- client
 	go client.Read()
-	go client.Write()
+	//go client.Write()
 	go chatClient.ChatWrite()
 	go chatClient.Chat()
 }

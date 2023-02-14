@@ -30,7 +30,7 @@ func Route(r *gin.Engine) {
 	{
 		user.POST("/login", activeCount.DailyActiveCount, users.Login) //用户登陆
 		user.POST("/sms", users.Sms)                                   //获取sms短信
-		//user.POST("/captcha", users.captcha)                           //获取滑动验证码
+		//user.POST("/captcha", users.captcha)                           //获取验证码
 		//user.POST("/signUp",jwt.AuthMiddleware, activeCount.DailyActiveCount, users.SignUp)//编辑用户
 		//user.DELETE("/signUp", activeCount.DailyActiveCount, users.SignUp)                 //用户注销
 		//user.GET("/login", jwt.AuthMiddleware, users.Login)                                //用户邀请
@@ -42,5 +42,4 @@ func Route(r *gin.Engine) {
 		//version.GET("/getVersion", versions.GetVersion) //更新版本
 		//version.GET("/getVersion", versions.GetVersion) //删除版本
 	}
-
 }

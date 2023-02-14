@@ -1,6 +1,7 @@
 package users
 
 import (
+	"KpChatGpt/cache"
 	"KpChatGpt/e/errors_const"
 	"KpChatGpt/handle/request"
 	"KpChatGpt/handle/response"
@@ -11,26 +12,29 @@ import (
 // Login 用户登陆
 func Login(ctx *gin.Context) {
 	var loginReq request.RqLogin
+	var data string
 	err := ctx.ShouldBindJSON(&loginReq)
 	if err != nil {
 		response.JsonFailMessage(ctx, errors_const.ErrInternalServer, err) //json解析失败
 		return
 	}
-	// 手机号登录
-	if loginReq.Phone != "" && loginReq.SmsCode != "" {
-
-	}
-
-	//// 手机号登录
-	//if loginReq.Phone != "" && loginReq.SmsCode != "" {
-	//	user, err := findUserByPhone(loginReq.Phone, loginReq.SmsCode)
-	//	if err != nil {
-	//		response.JsonBadRequest(ctx, err.Error())
-	//		return
-	//	}
-	//	// 用户验证通过
-	//	// ...
+	//checkMobile := user.CheckMobile(signUp.Phone) //检查手机号
+	//if !checkMobile {
+	//	response.JsonFailMessage(ctx, errors_const.ErrCheckMobile, err)
+	//	return
 	//}
+	if loginReq.Phone != "" && loginReq.SmsCode != "" { // 手机号登录
+		checkSms, err := cache.VerifyCodeFromRedis(loginReq.Phone, loginReq.SmsCode)
+		if err != nil {
+			response.JsonFailMessage(ctx, errors_const.ErrCheckSms, err) //json解析失败
+			return
+		}
+		data, err = user.FindUserByPhone(loginReq.Phone, loginReq.SmsCode, checkSms)
+		if err != nil {
+			response.JsonFailMessage(ctx, errors_const.ErrCheckSms, err) //json解析失败
+			return
+		}
+	}
 	//// 支付宝登录
 	//if loginReq.AliAuth != "" {
 	//	user, err := findUserByAliAuth(loginReq.AliAuth)
@@ -53,7 +57,7 @@ func Login(ctx *gin.Context) {
 	//	// 用户验证通过
 	//	// ...
 	//}
-	response.JsonSuccess(ctx, nil)
+	response.JsonSuccess(ctx, data)
 }
 
 // Sms 获取sms短信

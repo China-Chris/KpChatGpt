@@ -1,10 +1,8 @@
 package main
 
 import (
-	"KpChatGpt/cache"
 	"KpChatGpt/configs"
 	"KpChatGpt/controller/gpt3"
-	"KpChatGpt/daos"
 	logger "KpChatGpt/logs"
 	"KpChatGpt/routers"
 	"KpChatGpt/services"
@@ -23,10 +21,10 @@ var srv *http.Server
 
 func init() {
 	configs.ParseConfig("./configs/cfg.yml")                                   //配置读取
-	services.InitClient("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") //默认单key
-	daos.InitMysql()                                                           //初始化数据库
-	cache.NewRedis()                                                           //初始化缓存
-	logger.InitLog()                                                           //日志
+	services.InitClient("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") //默认单key
+	//daos.InitMysql()                                                           //初始化数据库
+	//cache.NewRedis()                                                           //初始化缓存
+	logger.InitLog() //日志
 }
 
 func run() {
@@ -52,7 +50,6 @@ func main() {
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	<-quit
 	logs.Info("Shutdown Server ...")
-
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	if err := srv.Shutdown(ctx); err != nil {

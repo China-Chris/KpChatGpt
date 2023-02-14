@@ -27,9 +27,9 @@ func InitClient(api string) {
 }
 
 func GetAnswer(question string, model string, ch chan string) {
-	fmt.Print("User: ")
+	fmt.Println("User: ")
 	fmt.Println(question)
-	fmt.Print("Bot: ")
+	fmt.Println("Bot: ")
 	reply := ""
 	i := 0
 	ctx := context.Background()
@@ -39,7 +39,7 @@ func GetAnswer(question string, model string, ch chan string) {
 			Prompt: []string{
 				question,
 			},
-			MaxTokens:   gpt3.IntPtr(100),
+			MaxTokens:   gpt3.IntPtr(1000),
 			Temperature: gpt3.Float32Ptr(0),
 			TopP:        gpt3.Float32Ptr(1),
 		}, func(resp *gpt3.CompletionResponse) {
@@ -57,7 +57,7 @@ func GetAnswer(question string, model string, ch chan string) {
 	case "Friend":
 		if err := client.CompletionStreamWithEngine(ctx, engine, gpt3.CompletionRequest{
 			Prompt: []string{
-				question,
+				"" + question,
 			},
 			MaxTokens:        gpt3.IntPtr(60),
 			Temperature:      gpt3.Float32Ptr(0.5),
