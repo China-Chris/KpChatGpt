@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/PullRequestInc/go-gpt3"
+	"github.com/beego/beego/v2/core/logs"
 	"log"
 )
 
@@ -50,7 +51,8 @@ func GetAnswer(question string, model string, ch chan string) {
 			}
 			i++
 		}); err != nil {
-			log.Fatalln(err)
+			ch <- "gpt请求拥堵"
+			logs.Info(err)
 		}
 		if reply != "" {
 		}

@@ -57,6 +57,13 @@ var Manager = ClientManager{
 	Reply:      make(chan *Client),
 	Unregister: make(chan *Client),
 }
+var upgrader = websocket.Upgrader{
+	CheckOrigin: func(r *http.Request) bool {
+		// Validate the request origin
+		return true
+	},
+	Subprotocols: []string{},
+}
 
 func (c *Client) Read() {
 	defer func() {
@@ -67,20 +74,23 @@ func (c *Client) Read() {
 		c.Socket.PingHandler()
 		sendMsg := new(SendMsg)
 		err := c.Socket.ReadJSON(&sendMsg)
+		fmt.Println(sendMsg)
 		if err != nil {
-			fmt.Println("read数据格式不正确", err)
-			Manager.Unregister <- c
-			_ = c.Socket.Close()
-			break
-		}
-		if sendMsg.Type == 1 { //如歌tape=1 则为发送消息
-			//缓存里面
-			//缓存里面
+			// Handle error
+			if websocket.IsCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
+				fmt.Println("websocket closed", err)
+				break
+			} else if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
+				fmt.Println("websocket closed unexpectedly", err)
+				break
+			} else {
+				fmt.Println("read数据格式不正确", err)
+				Manager.Unregister <- c
+				_ = c.Socket.Close()
+				break
+			}
 		}
 
-		//cache.RedisClient.incr(c.ID)
-		//_, _ = cache.RedisClient.Expire(c.ID, time.Hour*24*30*3).Result()
-		//防止过快"分手"  连接过期3个月
 		Manager.Broadcast <- &Broadcast{
 			Client:  c,
 			Message: []byte(sendMsg.Content), //发送过来的消息
@@ -113,36 +123,34 @@ func (c *Client) Read() {
 //}
 
 func (c *Client) ChatWrite() {
-	ch1 := make(chan string, 100)
-	defer func() {
-		_ = c.Socket.Close()
-	}()
+	ch1 := make(chan string, 1000)
 	go func(ch chan string) {
+		defer func() {
+			fmt.Println("ChatWrite: goroutine exited")
+			close(ch)
+		}()
 		for v := range ch {
 			replyMsg := ReplyMsg{
 				Code:    200,
 				Content: fmt.Sprintf("%s", v),
 			}
 			msg, _ := json.Marshal(replyMsg)
-			_ = c.Socket.WriteMessage(websocket.TextMessage, msg)
+			if err := c.Socket.WriteMessage(websocket.TextMessage, msg); err != nil {
+				fmt.Println("ChatWrite: write message failed:", err)
+				return
+			}
 		}
 	}(ch1)
 	for {
 		select {
 		case message, ok := <-c.Send:
 			if !ok {
-				_ = c.Socket.WriteMessage(websocket.CloseMessage, []byte{})
+				if err := c.Socket.WriteMessage(websocket.CloseMessage, []byte{}); err != nil {
+					fmt.Println("ChatWrite: write close message failed:", err)
+				}
 				return
 			}
 			services.GetAnswer(string(message), c.Model, ch1)
-			//for v := range ch1 {
-			//	replyMsg := ReplyMsg{
-			//		Code:    200,
-			//		Content: fmt.Sprintf("%s", v),
-			//	}
-			//	msg, _ := json.Marshal(replyMsg)
-			//	_ = c.Socket.WriteMessage(websocket.TextMessage, msg)
-			//}
 		}
 	}
 }
@@ -158,13 +166,24 @@ func (c *Client) Chat() {
 		sendMsg := new(SendMsg)
 		err := c.Socket.ReadJSON(&sendMsg)
 		if err != nil {
-			fmt.Println("chat数据格式不正确Write1", err)
-			Manager.Unregister <- c
-			_ = c.Socket.Close()
-			break
+			if err != nil {
+				// Handle error
+				if websocket.IsCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
+					fmt.Println("websocket closed", err)
+					break
+				} else if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
+					fmt.Println("websocket closed unexpectedly", err)
+					break
+				} else {
+					fmt.Println("read数据格式不正确", err)
+					Manager.Unregister <- c
+					_ = c.Socket.Close()
+					break
+				}
+			}
 		}
 		if sendMsg.Type == 2 { //如果tape=1 则为发送消息
-			services.GetAnswer(sendMsg.Content, c.Model, ch)
+			//services.GetAnswer(sendMsg.Content, c.Model, ch)
 			for v := range ch {
 				replyMsg := ReplyMsg{
 					Code:    200,
