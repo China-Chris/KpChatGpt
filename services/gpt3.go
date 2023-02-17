@@ -36,7 +36,7 @@ func GetAnswer(question string, model string, ch chan string) {
 	ctx := context.Background()
 	switch model {
 	case "QA":
-		if err := client.CompletionStreamWithEngine(ctx, engine, gpt3.CompletionRequest{
+		if err := client.CompletionStreamWithEngine(ctx, gpt3.AdaEngine, gpt3.CompletionRequest{
 			Prompt: []string{
 				question,
 			},

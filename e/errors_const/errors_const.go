@@ -17,4 +17,5 @@ const ( //  用户模块
 	ErrVerifySmsFromRedis
 	ErrInvalidSmsCode
 	ErrCheckSms
+	ErrFindUserByPhone
 )

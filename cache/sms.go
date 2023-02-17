@@ -19,14 +19,14 @@ func SaveCodeToRedis(phone, code string) error {
 }
 
 // VerifyCodeFromRedis 从redis中验证验证码
-func VerifyCodeFromRedis(phone, code string) (bool, error) {
+func VerifyCodeFromRedis(phone, code string) error {
 	key := fmt.Sprintf("sms_%s", phone)
 	c, err := Rdb.Get(configs.Ctx, key).Result()
 	if err != nil {
-		return false, errorss.HandleError(errors_const.ErrVerifySmsFromRedis, "zn", err)
+		return errorss.HandleError(errors_const.ErrVerifySmsFromRedis, "zn", err)
 	}
 	if c != code {
-		return false, errorss.HandleError(errors_const.ErrInvalidSmsCode, "zn", nil)
+		return errorss.HandleError(errors_const.ErrInvalidSmsCode, "zn", nil)
 	}
-	return false, nil
+	return nil
 }

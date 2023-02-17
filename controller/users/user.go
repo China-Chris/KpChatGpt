@@ -12,7 +12,7 @@ import (
 // Login 用户登陆
 func Login(ctx *gin.Context) {
 	var loginReq request.RqLogin
-	var data string
+	var accessToken, refreshToken string
 	err := ctx.ShouldBindJSON(&loginReq)
 	if err != nil {
 		response.JsonFailMessage(ctx, errors_const.ErrInternalServer, err) //json解析失败
@@ -24,12 +24,12 @@ func Login(ctx *gin.Context) {
 	//	return
 	//}
 	if loginReq.Phone != "" && loginReq.SmsCode != "" { // 手机号登录
-		checkSms, err := cache.VerifyCodeFromRedis(loginReq.Phone, loginReq.SmsCode)
+		err := cache.VerifyCodeFromRedis(loginReq.Phone, loginReq.SmsCode)
 		if err != nil {
 			response.JsonFailMessage(ctx, errors_const.ErrCheckSms, err) //json解析失败
 			return
 		}
-		data, err = user.FindUserByPhone(loginReq.Phone, loginReq.SmsCode, checkSms)
+		accessToken, refreshToken, err = user.FindUserByPhone(loginReq.Phone)
 		if err != nil {
 			response.JsonFailMessage(ctx, errors_const.ErrCheckSms, err) //json解析失败
 			return
@@ -57,7 +57,7 @@ func Login(ctx *gin.Context) {
 	//	// 用户验证通过
 	//	// ...
 	//}
-	response.JsonSuccess(ctx, data)
+	response.JsonSuccess(ctx, response.NewRpSignUp(accessToken, refreshToken))
 }
 
 // Sms 获取sms短信
